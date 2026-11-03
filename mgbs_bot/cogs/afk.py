@@ -25,7 +25,7 @@ from mgbs_bot.utils import (
     task_roles_text,
 )
 
-ROLE_MENTION = disnake.AllowedMentions(roles=True, users=True, everyone=False)
+USER_MENTION = disnake.AllowedMentions(roles=False, users=True, everyone=False)
 
 
 def _parse_timestamp(value: str) -> datetime | None:
@@ -173,10 +173,6 @@ class AfkReminderCog(commands.Cog):
         if not fresh_tasks:
             return
 
-        role_mentions = sorted(
-            {role_id for _, role_ids in fresh_tasks for role_id in role_ids}
-        )
-        role_line = " ".join(f"<@&{role_id}>" for role_id in role_mentions)
         lines = [
             f"``#{task['id']}`` **{task['title']}**\n"
             f"Роли: {task_roles_text(role_ids)}\n"
@@ -199,9 +195,9 @@ class AfkReminderCog(commands.Cog):
         if channel is not None:
             try:
                 await channel.send(
-                    content=f"{role_line} — {member.mention}".strip(),
+                    content=member.mention,
                     embed=embed,
-                    allowed_mentions=ROLE_MENTION,
+                    allowed_mentions=USER_MENTION,
                 )
             except disnake.HTTPException:
                 logger.exception(
